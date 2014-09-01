@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "QQHistoryView", "QQHistoryView.vcxproj", "{1035B35B-48BD-49F8-9A16-32BA18195833}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B6C789D9-7DD0-49AF-A815-B2C21478E4E8} = {B6C789D9-7DD0-49AF-A815-B2C21478E4E8}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sqlite3", "lib\sqlite3\sqlite3.vcxproj", "{B6C789D9-7DD0-49AF-A815-B2C21478E4E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1035B35B-48BD-49F8-9A16-32BA18195833}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1035B35B-48BD-49F8-9A16-32BA18195833}.Debug|Win32.Build.0 = Debug|Win32
+		{1035B35B-48BD-49F8-9A16-32BA18195833}.Release|Win32.ActiveCfg = Release|Win32
+		{1035B35B-48BD-49F8-9A16-32BA18195833}.Release|Win32.Build.0 = Release|Win32
+		{B6C789D9-7DD0-49AF-A815-B2C21478E4E8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B6C789D9-7DD0-49AF-A815-B2C21478E4E8}.Debug|Win32.Build.0 = Debug|Win32
+		{B6C789D9-7DD0-49AF-A815-B2C21478E4E8}.Release|Win32.ActiveCfg = Release|Win32
+		{B6C789D9-7DD0-49AF-A815-B2C21478E4E8}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
