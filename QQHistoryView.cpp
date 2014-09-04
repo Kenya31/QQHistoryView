@@ -15,8 +15,6 @@
 
 #include "QQHistory.h"
 
-using namespace std;
-
 #pragma execution_character_set("UTF-8")
 
 #define DOCTYPE_HTML "<!DOCTYPE html>"
@@ -35,7 +33,10 @@ using namespace std;
 #define BREAK_TAG "<br/>"
 #define EMPTY_STRING ""
 #define RESULT_DIR "result"
-#define THUMBNAIL_DIR "result/thumbnail"
+#define IMAGE_THUMBNAIL_DIR "result/image_thumbnail"
+#define IMAGE_ORIGINAL_DIR "result/image_original"
+#define AUDIO_DIR "result/Audio"
+#define MYFOLDER_DIR "result/MyFolder"
 #define QQ_HTML "result/QQ.html"
 
 /**
@@ -46,10 +47,13 @@ using namespace std;
 void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 	string uin;
 	string jst;
+	string type;
 	string flag;
+	string read;
 	string content;
+	string picUrl;
 
-	// 前回のUINの値
+	// Last uin value.
 	string last_uin;
 
 	// 1レコード分のデータを格納するオブジェクト
@@ -66,11 +70,20 @@ void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 		// JST
 		jst = qh.GetValue("jst");
 
+		// TYPE
+		type = qh.GetValue("type");
+
 		// FLAG
 		flag = qh.GetValue("flag");
 
+		// READ
+		read = qh.GetValue("read");
+
 		// CONTENT
 		content = qh.GetValue("content");
+
+		// picUrl
+		picUrl = qh.GetValue("picUrl");
 
 		if (it == records.begin()) {
 			// First record.
@@ -78,9 +91,10 @@ void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 			*QQ_html << "<th width=\"150\" nowrap>相手のQQ番号</th>" << endl;
 			*QQ_html << "<th width=\"150\" nowrap>日時(日本時間)</th>" << endl;
 			*QQ_html << "<th nowrap>送受信種別</th>" << endl;
+			//*QQ_html << "<th nowrap>未読/既読</th>" << endl;
 			*QQ_html << "<th>内容</th>" << endl;
 		} else if (last_uin != uin) {
-			// Differ last calue of uin.
+			// Differ last value of uin.
 			*QQ_html << "</table>" << endl;
 			*QQ_html << "<hr size=\"5\"/>" << endl;
 			*QQ_html << "<table border=\"2\">" << endl;
@@ -88,6 +102,7 @@ void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 			*QQ_html << "<th width=\"150\" nowrap>相手のQQ番号</th>" << endl;
 			*QQ_html << "<th width=\"150\" nowrap>日時(日本時間)</th>" << endl;
 			*QQ_html << "<th nowrap>送受信種別</th>" << endl;
+			//*QQ_html << "<th nowrap>未読/既読</th>" << endl;
 			*QQ_html << "<th>内容</th>" << endl;
 		}
 
@@ -96,8 +111,11 @@ void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 
 		// 出力
 		*QQ_html << "<tr>" << endl;
+		// QQ number.
 		*QQ_html << "<td nowrap>" << uin << "</td>" << endl;
+		// Time.
 		*QQ_html << "<td nowrap>" << jst << "</td>" << endl;
+		// Receive or Send.
 		if ("0" == flag) {
 			*QQ_html << "<td nowrap align=\"center\">送信</td>" << endl;
 		} else if ("1" == flag) {
@@ -105,18 +123,48 @@ void PrintResult(vector<QQHistory> records, ofstream *QQ_html) {
 		} else {
 			*QQ_html << "<td nowrap align=\"center\">不明</td>" << endl;
 		}
-		//		*QQ_html << "<td>" << content << "</td>" << endl;
-		*QQ_html << "<td><pre>" << content << "</pre></td>" << endl;
+		/*
+		// 未読/既読
+		if ("0" == read) {
+			*QQ_html << "<td nowrap align=\"center\">未読</td>" << endl;
+		} else if ("1" == read) {
+			*QQ_html << "<td nowrap align=\"center\">既読</td>" << endl;
+		} else {
+			*QQ_html << "<td nowrap align=\"center\">不明</td>" << endl;
+		}
+		*/
+		// Message
+		*QQ_html << "<!-- type=\"" << type << "\" -->" << endl;
+		if ("0" == type) {
+			// Text message.
+			*QQ_html << "<td><div>" << content << "</div></td>" << endl;
+		} else if ("1" == type) {
+			// Picture data.
+			*QQ_html << "<td><div>" << picUrl << "</div></td>" << endl;
+		} else if ("2" == type) {
+			// ?
+		} else if ("3" == type) {
+			// Sound data.
+			*QQ_html << "<td><div>" << content << "</div></td>" << endl;
+		} else if ("4" == type) {
+			// Video data.
+			*QQ_html << "<td><div>" << content << "</div></td>" << endl;
+		} else {
+			// Other data.
+			*QQ_html << "<td><div>" << content << "</div></td>" << endl;		}
 		*QQ_html << "</tr>" << endl;
 
-		// イテレータを進める
+		// Add iterator.
 		it++;
 
-		// 変数をクリア
+		// Clear parameters.
 		uin = EMPTY_STRING;
 		jst = EMPTY_STRING;
+		type = EMPTY_STRING;
 		flag = EMPTY_STRING;
+		read = EMPTY_STRING;
 		content = EMPTY_STRING;
+		picUrl = EMPTY_STRING;
 	}
 }
 
@@ -155,10 +203,15 @@ int getQQHistoryTables(sqlite3 *db, vector<string> *tables) {
 	sqlite3_stmt *stmt = (sqlite3_stmt *)0;
 
 	// Get name message tables excludes 'tb_c2cMsg_1001' and 'tb_c2cMsg_10000'.
+	/*
 	const char *show_tables = "SELECT name FROM sqlite_master "
 		"WHERE type = 'table' AND name LIKE 'tb_c2cMsg_%' "
 		"AND name != 'tb_c2cMsg_1001' AND name != 'tb_c2cMsg_10000';";
-
+		*/
+	const char *show_tables = "SELECT uin FROM tb_c2cTables"
+		" WHERE uin != 'tb_c2cMsg_1001' AND uin != 'tb_c2cMsg_10000'"
+		" AND uin != 'tb_c2cMsg_2909288299' AND uin != 'tb_recentC2CMsg'"
+		" ORDER BY uin;";
 
 	if ((sqlite3 *)0 == db) {
 		// DB file is not open.
@@ -191,7 +244,7 @@ int getQQHistoryTables(sqlite3 *db, vector<string> *tables) {
 int getQQHistoryRecords(sqlite3 *db, string table, vector<QQHistory> *results) {
 	int sqlite3_result = 0;
 	int columnCount = 0;
-	const char *select_sql = "SELECT msgId, uin, DATETIME(time, 'unixepoch', 'localtime') AS jst, flag, content FROM ";
+	const char *select_sql = "SELECT msgId, uin, DATETIME(time, 'unixepoch', 'localtime') AS jst, type, flag, read, content, picUrl FROM ";
 	const char *order_by_sql = " ORDER BY time;";
 	const char *param = (char *)0;
 	const unsigned char *value = (unsigned char *)0;
